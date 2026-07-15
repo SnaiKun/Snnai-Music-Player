@@ -4,6 +4,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { supabase } from './supabase';
 import { Session } from '@supabase/supabase-js';
 import { Track, Playlist, RepeatMode, PlayerState, AppState, LyricsState, LyricLine, Artist, Album } from './types';
+import { createRomanizer } from 'lyric-romanizer';
+
+const romanizer = createRomanizer();
 
 // ─── Player Store ─────────────────────────────────────────────────────────────
 
@@ -30,6 +33,8 @@ interface PlayerStore extends PlayerState {
   togglePlay: () => void;
   toggleRepeat: () => void;
   prefetchNextTrack: () => Promise<void>;
+  toggleKaraokeMode: () => Promise<void>;
+  processKaraoke: (url: string, trackId: string) => Promise<void>;
 }
 
 export const usePlayerStore = create<PlayerStore>()(
@@ -49,6 +54,11 @@ export const usePlayerStore = create<PlayerStore>()(
   isLoadingStream: false,
   streamError: null,
   prefetchedStream: null,
+  isKaraokeMode: false,
+  karaokeState: 'idle',
+  originalStreamUrl: null,
+  processedStreamUrl: null,
+  processedTrackId: null,
 
   setCurrentTrack: (track) => set({ currentTrack: track }),
   setQueue: (tracks, startIndex = 0) => set({ queue: tracks, queueIndex: startIndex }),
@@ -105,6 +115,10 @@ export const usePlayerStore = create<PlayerStore>()(
       currentTrack: track,
       isPlaying: false,
       streamUrl: null,
+      originalStreamUrl: null,
+      processedStreamUrl: null,
+      processedTrackId: null,
+      karaokeState: 'idle',
       isLoadingStream: true,
       streamError: null,
       progress: 0,
@@ -131,7 +145,16 @@ export const usePlayerStore = create<PlayerStore>()(
         url = await invoke('get_audio_url', { trackId: track.id, query });
       }
       
-      set({ streamUrl: url, isLoadingStream: false, isPlaying: true });
+      set({ 
+        streamUrl: url, 
+        originalStreamUrl: url,
+        isLoadingStream: false, 
+        isPlaying: true 
+      });
+
+      if (get().isKaraokeMode) {
+        get().processKaraoke(url, track.id);
+      }
       
       // Prefetch the next track after a short delay
       setTimeout(() => {
@@ -284,6 +307,82 @@ export const usePlayerStore = create<PlayerStore>()(
       console.warn('Failed to prefetch next track:', e);
     }
   },
+
+  processKaraoke: async (url: string, trackId: string) => {
+    set({ karaokeState: 'decoding' });
+    try {
+      const { processVocalRemoval } = await import('./lib/audioProcessor');
+      const processedUrl = await processVocalRemoval(url, (status) => {
+        set({ karaokeState: status.state as any });
+      });
+      set({ 
+        processedStreamUrl: processedUrl, 
+        processedTrackId: trackId,
+        karaokeState: 'ready'
+      });
+      
+      const currentId = get().currentTrack?.id;
+      if (currentId === trackId && get().isKaraokeMode) {
+        const audio = document.querySelector('audio') as HTMLAudioElement | null;
+        const currentTime = audio ? audio.currentTime : 0;
+        const wasPlaying = get().isPlaying;
+
+        set({ streamUrl: processedUrl });
+
+        if (audio) {
+          setTimeout(() => {
+            audio.currentTime = currentTime;
+            if (wasPlaying) {
+              audio.play().catch(() => {});
+            }
+          }, 50);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to separate vocals:', e);
+      set({ karaokeState: 'error' });
+    }
+  },
+
+  toggleKaraokeMode: async () => {
+    const nextVal = !get().isKaraokeMode;
+    set({ isKaraokeMode: nextVal });
+
+    const track = get().currentTrack;
+    if (!track) return;
+
+    const audio = document.querySelector('audio') as HTMLAudioElement | null;
+    const currentTime = audio ? audio.currentTime : 0;
+    const wasPlaying = get().isPlaying;
+
+    if (nextVal) {
+      if (get().processedStreamUrl && get().processedTrackId === track.id) {
+        set({ streamUrl: get().processedStreamUrl });
+        if (audio) {
+          setTimeout(() => {
+            audio.currentTime = currentTime;
+            if (wasPlaying) audio.play().catch(() => {});
+          }, 50);
+        }
+      } else {
+        const originalUrl = get().originalStreamUrl || get().streamUrl;
+        if (originalUrl) {
+          await get().processKaraoke(originalUrl, track.id);
+        }
+      }
+    } else {
+      const originalUrl = get().originalStreamUrl;
+      if (originalUrl) {
+        set({ streamUrl: originalUrl });
+        if (audio) {
+          setTimeout(() => {
+            audio.currentTime = currentTime;
+            if (wasPlaying) audio.play().catch(() => {});
+          }, 50);
+        }
+      }
+    }
+  },
     }),
     {
       name: 'snnai-player-storage',
@@ -324,11 +423,16 @@ function parseLrc(lrc: string): LyricLine[] {
 interface LyricsStore extends LyricsState {
   fetchLyrics: (track: Track) => Promise<void>;
   clearLyrics: () => void;
+  toggleRomanize: () => Promise<void>;
+  romanizeCurrentLyrics: (plain: string | null, synced: LyricLine[] | null) => Promise<void>;
 }
 
 export const useLyricsStore = create<LyricsStore>((set, get) => ({
   plainLyrics: null,
   syncedLyrics: null,
+  romanizedPlainLyrics: null,
+  romanizedSyncedLyrics: null,
+  isRomanized: false,
   isLoading: false,
   error: null,
   trackId: null,
@@ -337,7 +441,15 @@ export const useLyricsStore = create<LyricsStore>((set, get) => ({
     // Don't re-fetch if same track
     if (get().trackId === track.id) return;
 
-    set({ isLoading: true, error: null, plainLyrics: null, syncedLyrics: null, trackId: track.id });
+    set({ 
+      isLoading: true, 
+      error: null, 
+      plainLyrics: null, 
+      syncedLyrics: null, 
+      romanizedPlainLyrics: null, 
+      romanizedSyncedLyrics: null, 
+      trackId: track.id 
+    });
     try {
       const result: { plainLyrics?: string; syncedLyrics?: string } = await invoke('get_lyrics', {
         artist: track.artist,
@@ -345,17 +457,72 @@ export const useLyricsStore = create<LyricsStore>((set, get) => ({
         album: track.album,
         durationSecs: Math.floor(track.durationMs / 1000),
       });
+
+      const plain = result.plainLyrics || null;
+      const synced = result.syncedLyrics ? parseLrc(result.syncedLyrics) : null;
+
       set({
-        plainLyrics: result.plainLyrics || null,
-        syncedLyrics: result.syncedLyrics ? parseLrc(result.syncedLyrics) : null,
+        plainLyrics: plain,
+        syncedLyrics: synced,
         isLoading: false,
       });
+
+      if (get().isRomanized) {
+        await get().romanizeCurrentLyrics(plain, synced);
+      }
     } catch (e: unknown) {
       set({ error: String(e), isLoading: false, plainLyrics: null, syncedLyrics: null });
     }
   },
 
-  clearLyrics: () => set({ plainLyrics: null, syncedLyrics: null, error: null, trackId: null }),
+  romanizeCurrentLyrics: async (plain: string | null, synced: LyricLine[] | null) => {
+    try {
+      let rPlain: string | null = null;
+      let rSynced: LyricLine[] | null = null;
+
+      if (plain) {
+        const lines = plain.split('\n');
+        const res = await romanizer.romanizeLines(lines);
+        rPlain = res.lines.join('\n');
+      }
+
+      if (synced) {
+        const lines = synced.map(l => l.text);
+        const res = await romanizer.romanizeLines(lines);
+        rSynced = synced.map((l, idx) => ({
+          ...l,
+          text: res.lines[idx]
+        }));
+      }
+
+      set({
+        romanizedPlainLyrics: rPlain,
+        romanizedSyncedLyrics: rSynced,
+      });
+    } catch (err) {
+      console.warn('Failed to romanize lyrics:', err);
+    }
+  },
+
+  toggleRomanize: async () => {
+    const nextState = !get().isRomanized;
+    set({ isRomanized: nextState });
+
+    if (nextState && !get().romanizedPlainLyrics && !get().romanizedSyncedLyrics) {
+      set({ isLoading: true });
+      await get().romanizeCurrentLyrics(get().plainLyrics, get().syncedLyrics);
+      set({ isLoading: false });
+    }
+  },
+
+  clearLyrics: () => set({ 
+    plainLyrics: null, 
+    syncedLyrics: null, 
+    romanizedPlainLyrics: null, 
+    romanizedSyncedLyrics: null, 
+    error: null, 
+    trackId: null 
+  }),
 }));
 
 // ─── App Store ────────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ import {
   Play, Pause, SkipBack, SkipForward,
   Volume2, VolumeX, Repeat, Repeat1, Shuffle,
   Loader2, AlertCircle, ListMusic, Mic2,
-  Plus, Check,
+  Plus, Check, Sparkles,
 } from 'lucide-react';
 import { usePlayerStore, useAppStore } from '../store';
 
@@ -21,6 +21,7 @@ export default function PlayerBar() {
   const {
     currentTrack, isPlaying, volume, progress, duration,
     isSeeking, repeatMode, isShuffle, streamUrl, isLoadingStream, streamError,
+    isKaraokeMode, karaokeState, toggleKaraokeMode,
     setPlaying, setVolume, setProgress, setDuration, setIsSeeking,
     next, previous, togglePlay, toggleRepeat, toggleShuffle,
   } = usePlayerStore();
@@ -454,6 +455,31 @@ export default function PlayerBar() {
 
         {/* Divider */}
         <div className="w-px h-5 shrink-0" style={{ background: 'var(--border)' }} />
+
+        {/* Karaoke / Vocal remover toggle */}
+        <button
+          onClick={toggleKaraokeMode}
+          title="Toggle Karaoke Mode (Remove Vocals)"
+          disabled={!currentTrack || karaokeState === 'decoding' || karaokeState === 'processing'}
+          className={`p-1.5 rounded-lg transition-all hover:scale-110 flex items-center justify-center relative ${
+            (!currentTrack || karaokeState === 'decoding' || karaokeState === 'processing') ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          style={{
+            color: isKaraokeMode ? 'var(--accent-light)' : 'var(--text-secondary)',
+            background: isKaraokeMode ? 'rgba(124,58,237,0.15)' : 'transparent',
+          }}
+        >
+          {karaokeState === 'decoding' || karaokeState === 'processing' ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : (
+            <Sparkles size={15} />
+          )}
+          {(karaokeState === 'decoding' || karaokeState === 'processing') && (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--bg-elevated)] border border-[var(--border)] text-[9px] px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap text-[var(--text-primary)] uppercase font-bold tracking-widest animate-pulse z-50">
+              {karaokeState === 'decoding' ? 'decoding...' : 'processing...'}
+            </span>
+          )}
+        </button>
 
         {/* Lyrics toggle */}
         <button

@@ -35,6 +35,11 @@ export interface PlayerState {
   streamError: string | null;
   injectAndPlay: (track: Track) => void;
   prefetchedStream: { trackId: string; url: string; expiresAt: number } | null;
+  isKaraokeMode: boolean;
+  karaokeState: 'idle' | 'decoding' | 'processing' | 'ready' | 'error';
+  originalStreamUrl: string | null;
+  processedStreamUrl: string | null;
+  processedTrackId: string | null;
 }
 
 export interface AppState {
@@ -64,6 +69,9 @@ export interface LyricLine {
 export interface LyricsState {
   plainLyrics: string | null;
   syncedLyrics: LyricLine[] | null;
+  romanizedPlainLyrics: string | null;
+  romanizedSyncedLyrics: LyricLine[] | null;
+  isRomanized: boolean;
   isLoading: boolean;
   error: string | null;
   trackId: string | null;  // which track these lyrics belong to

@@ -154,13 +154,13 @@ export default function Sidebar() {
       ) : (
         <div className="flex flex-col gap-0.5">
           {playlists.map((pl) => (
-            <button
+            <div
               key={pl.id}
               onClick={() => {
                 setActiveView('playlist');
                 setActivePlaylistId(pl.id);
               }}
-              className={`group flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all ${
+              className={`group flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all cursor-pointer ${
                 activeView === 'playlist' && activePlaylistId === pl.id ? 'neumorphic-out font-semibold' : 'hover:bg-[var(--bg-elevated)]'
               }`}
               style={{
@@ -180,7 +180,7 @@ export default function Sidebar() {
               >
                 <Trash2 size={12} />
               </button>
-            </button>
+            </div>
           ))}
         </div>
       )}

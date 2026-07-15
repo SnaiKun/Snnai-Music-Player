@@ -215,7 +215,7 @@ async fn fetch_itunes_artists(url: &str) -> Result<Vec<Artist>, String> {
 }
 
 #[tauri::command]
-async fn search_all(query: String) -> Result<SearchResults, String> {
+async fn search_all(app: tauri::AppHandle, query: String) -> Result<SearchResults, String> {
     let tracks_url = format!(
         "https://itunes.apple.com/search?term={}&entity=song&limit=30",
         urlencoding::encode(&query)
@@ -229,15 +229,20 @@ async fn search_all(query: String) -> Result<SearchResults, String> {
         urlencoding::encode(&query)
     );
 
-    let (tracks_res, albums_res, artists_res) = tokio::join!(
+    let (tracks_res, albums_res, artists_res, sc_tracks_res) = tokio::join!(
         fetch_itunes_tracks(&tracks_url),
         fetch_itunes_albums(&albums_url),
         fetch_itunes_artists(&artists_url),
+        search_soundcloud(app, query.clone(), 15),
     );
 
-    let tracks = tracks_res.unwrap_or_default();
+    let mut tracks = tracks_res.unwrap_or_default();
     let albums = albums_res.unwrap_or_default();
     let artists = artists_res.unwrap_or_default();
+
+    if let Ok(sc_tracks) = sc_tracks_res {
+        tracks.extend(sc_tracks);
+    }
 
     Ok(SearchResults {
         tracks,
@@ -424,7 +429,7 @@ async fn search_soundcloud_ytdlp(app: tauri::AppHandle, query: String, limit: u3
             album: "SoundCloud".to_string(),
             artwork_url,
             duration_ms,
-            preview_url: None,
+            preview_url: Some(webpage_url),
             genre_name: Some("SoundCloud".to_string()),
         });
     }
@@ -1047,6 +1052,33 @@ async fn record_play_history(app: tauri::AppHandle, track: Track) -> Result<(), 
 }
 
 #[tauri::command]
+async fn fetch_audio_bytes(url: String) -> Result<Vec<u8>, String> {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let resp = client.get(&url)
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        .header("Accept-Encoding", "identity")
+        .send()
+        .await
+        .map_err(|e| format!("Network error: {}", e))?;
+
+    if !resp.status().is_success() {
+        return Err(format!("HTTP error: {}", resp.status()));
+    }
+
+    let bytes = resp.bytes().await
+        .map_err(|e| {
+            eprintln!("[DEBUG] fetch_audio_bytes error: {:?}", e);
+            format!("Failed to read response bytes: {:?}", e)
+        })?;
+
+    Ok(bytes.to_vec())
+}
+
+#[tauri::command]
 async fn get_personalized_recommendations(
     app: tauri::AppHandle,
     limit: u32,
@@ -1331,6 +1363,7 @@ pub fn run() {
             get_recent_searches,
             save_search,
             record_play_history,
+            fetch_audio_bytes,
             get_personalized_recommendations,
             search_all,
             lookup_album,

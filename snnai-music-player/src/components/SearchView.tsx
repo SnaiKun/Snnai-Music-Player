@@ -35,13 +35,33 @@ export default function SearchView() {
 
   const { playTrack, currentTrack } = usePlayerStore();
 
+  // Automatically load tracks and check favorite status when selectedArtist changes
   React.useEffect(() => {
     if (selectedArtist) {
+      setIsSubViewLoading(true);
+      setSubViewTracks([]);
+      invoke<TrackType[]>('lookup_artist', { artistId: selectedArtist.id })
+        .then(setSubViewTracks)
+        .catch((err) => console.error('Failed to lookup artist:', err))
+        .finally(() => setIsSubViewLoading(false));
+
       invoke<boolean>('is_artist_favorited', { artistId: selectedArtist.id })
         .then(setIsFavorited)
         .catch((err) => console.error('Failed to check favorite status:', err));
     }
   }, [selectedArtist]);
+
+  // Automatically load tracks when selectedAlbum changes
+  React.useEffect(() => {
+    if (selectedAlbum) {
+      setIsSubViewLoading(true);
+      setSubViewTracks([]);
+      invoke<TrackType[]>('lookup_album', { albumId: selectedAlbum.id })
+        .then(setSubViewTracks)
+        .catch((err) => console.error('Failed to lookup album:', err))
+        .finally(() => setIsSubViewLoading(false));
+    }
+  }, [selectedAlbum]);
 
   const handleToggleFavorite = async () => {
     if (!selectedArtist) return;
@@ -128,34 +148,14 @@ export default function SearchView() {
     if (results.tracks.length > 0) playTrack(results.tracks[0], results.tracks);
   };
 
-  const handleSelectAlbum = async (album: AlbumType) => {
+  const handleSelectAlbum = (album: AlbumType) => {
     setSelectedAlbum(album);
     setSelectedArtist(null);
-    setIsSubViewLoading(true);
-    setSubViewTracks([]);
-    try {
-      const tracks: TrackType[] = await invoke('lookup_album', { albumId: album.id });
-      setSubViewTracks(tracks);
-    } catch (err) {
-      console.error('Failed to lookup album:', err);
-    } finally {
-      setIsSubViewLoading(false);
-    }
   };
 
-  const handleSelectArtist = async (artist: ArtistType) => {
+  const handleSelectArtist = (artist: ArtistType) => {
     setSelectedArtist(artist);
     setSelectedAlbum(null);
-    setIsSubViewLoading(true);
-    setSubViewTracks([]);
-    try {
-      const tracks: TrackType[] = await invoke('lookup_artist', { artistId: artist.id });
-      setSubViewTracks(tracks);
-    } catch (err) {
-      console.error('Failed to lookup artist:', err);
-    } finally {
-      setIsSubViewLoading(false);
-    }
   };
 
   // ─── Sub-views ─────────────────────────────────────────────────────────────

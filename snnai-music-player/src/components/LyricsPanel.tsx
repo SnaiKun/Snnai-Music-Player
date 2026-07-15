@@ -5,7 +5,19 @@ import { useAppStore, usePlayerStore, useLyricsStore } from '../store';
 export default function LyricsPanel() {
   const { isLyricsOpen, toggleLyrics } = useAppStore();
   const { currentTrack, progress } = usePlayerStore();
-  const { plainLyrics, syncedLyrics, isLoading, error } = useLyricsStore();
+  const { 
+    plainLyrics, 
+    syncedLyrics, 
+    romanizedPlainLyrics, 
+    romanizedSyncedLyrics, 
+    isRomanized, 
+    toggleRomanize, 
+    isLoading, 
+    error 
+  } = useLyricsStore();
+
+  const displayedSynced = isRomanized && romanizedSyncedLyrics ? romanizedSyncedLyrics : syncedLyrics;
+  const displayedPlain = isRomanized && romanizedPlainLyrics ? romanizedPlainLyrics : plainLyrics;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const activeLyricRef = useRef<HTMLParagraphElement>(null);
@@ -58,18 +70,32 @@ export default function LyricsPanel() {
         className="flex items-center justify-between px-5 py-4 shrink-0"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Mic2 size={18} style={{ color: 'var(--accent-light)' }} />
           <h2 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
             Lyrics
           </h2>
           {syncedLyrics && (
             <span
-              className="text-xs px-1.5 py-0.5 rounded-full"
+              className="text-xs px-1.5 py-0.5 rounded-full shrink-0"
               style={{ background: 'rgba(124,58,237,0.2)', color: 'var(--accent-light)', border: '1px solid var(--accent)' }}
             >
               Synced
             </span>
+          )}
+          {(plainLyrics || syncedLyrics) && (
+            <button
+              onClick={toggleRomanize}
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full transition-all border uppercase shrink-0"
+              style={{
+                background: isRomanized ? 'rgba(124,58,237,0.2)' : 'transparent',
+                color: isRomanized ? 'var(--accent-light)' : 'var(--text-secondary)',
+                borderColor: isRomanized ? 'var(--accent)' : 'var(--border)',
+              }}
+              title="Toggle Romanization (Romaji, Pinyin, etc.)"
+            >
+              Romaji
+            </button>
           )}
         </div>
         <button
@@ -130,9 +156,9 @@ export default function LyricsPanel() {
         )}
 
         {/* Synced lyrics */}
-        {currentTrack && !isLoading && syncedLyrics && (
+        {currentTrack && !isLoading && displayedSynced && (
           <div className="flex flex-col gap-3 pb-20">
-            {syncedLyrics.map((line, i) => {
+            {displayedSynced.map((line, i) => {
               const isActive = i === currentLineIndex;
               const isPast = i < currentLineIndex;
               return (
@@ -162,12 +188,12 @@ export default function LyricsPanel() {
         )}
 
         {/* Plain lyrics fallback */}
-        {currentTrack && !isLoading && !syncedLyrics && plainLyrics && (
+        {currentTrack && !isLoading && !displayedSynced && displayedPlain && (
           <div
             className="text-sm leading-loose whitespace-pre-wrap"
             style={{ color: 'var(--text-secondary)' }}
           >
-            {plainLyrics}
+            {displayedPlain}
           </div>
         )}
       </div>
