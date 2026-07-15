@@ -84,9 +84,7 @@ Snnai is completely **free, open-source, and has absolutely no paywalls or adver
 
 If Snnai has improved your music-listening experience and you want to keep motivating me to add new features, maintain dependencies, and keep updating the app, please consider supporting me:
 
-- **Buy Me a Coffee**: [buymeacoffee.com/your-username](https://www.buymeacoffee.com/)
-- **GitHub Sponsors**: [github.com/sponsors/your-username](https://github.com/sponsors/)
-- **Ko-fi**: [ko-fi.com/your-username](https://ko-fi.com/)
+- **Ko-fi**: [ko-fi.com/your-username](https://ko-fi.com/) -- bro haven't created it yet! XD
 
 Every donation, no matter the size, goes directly toward motivation and keeping the project alive. Thank you so much! 🙏
 
