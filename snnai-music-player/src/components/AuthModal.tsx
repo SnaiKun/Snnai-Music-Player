@@ -30,7 +30,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         onClose();
       } else if (viewState === 'forgot-password') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: 'http://localhost:5000/reset-password.html',
+          redirectTo: 'https://snnai-music-player.vercel.app/reset-password.html',
         });
         if (error) throw error;
         setSuccessMessage('Password reset link sent to your email!');
