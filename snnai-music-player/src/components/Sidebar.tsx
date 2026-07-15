@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Search, Library, Plus, Trash2, ListMusic,
-  Music2, AlertTriangle, Moon, Sun, LogIn, LogOut, Settings
+  AlertTriangle, Moon, Sun, LogIn, LogOut, Settings
 } from 'lucide-react';
 import { useAppStore, usePlayerStore } from '../store';
 import { supabase } from '../supabase';
@@ -73,12 +73,11 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-2 px-3 mb-6">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'var(--accent)', boxShadow: '0 0 12px var(--accent-glow)' }}
-        >
-          <Music2 size={16} className="text-white" />
-        </div>
+        <img
+          src="/logo.png"
+          className="w-8 h-8 rounded-lg object-contain"
+          alt="Snnai Logo"
+        />
         <span className="font-bold text-gradient text-base">Snnai</span>
       </div>
 

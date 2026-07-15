@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../supabase';
-import { X, Loader2, Music2 } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -52,9 +52,11 @@ export default function AuthModal({ onClose }: AuthModalProps) {
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
-                <Music2 size={16} className="text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                className="w-8 h-8 rounded-lg object-contain"
+                alt="Snnai Logo"
+              />
               <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {viewState === 'login' ? 'Welcome Back' : viewState === 'signup' ? 'Create Account' : 'Reset Password'}
               </h2>
