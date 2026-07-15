@@ -1,0 +1,42 @@
+[package]
+name = "snnai-music-player"
+version = "0.1.0"
+description = "Snnai Music Player — a free desktop music player"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+name = "snnai_music_player_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+tauri-plugin-shell = "2"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client for iTunes / Spotify API
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# URL encoding for query parameters
+urlencoding = "2"
+
+# SQLite for caching and playlists
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true

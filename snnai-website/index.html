@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snnai Music Player - Pure Sound, Infinite Playback</title>
+  <meta name="description" content="A gorgeous, lightning-fast desktop music player powered by Tauri, Rust, and Supabase. Stream from SoundCloud and iTunes with smart autoplay curation.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i data-lucide="music" class="logo-icon"></i>
+        <span>Snnai</span>
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#screenshots">Showcase</a>
+        <a href="#download" class="btn btn-primary btn-nav">
+          <i data-lucide="download"></i> Download
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-bg-glow"></div>
+    <div class="container hero-container">
+      <div class="hero-content">
+        <div class="badge">
+          <i data-lucide="sparkles"></i> Desktop Audio Redefined
+        </div>
+        <h1>Pure Sound,<br><span class="gradient-text">Infinite Playback</span></h1>
+        <p class="hero-desc">
+          Snnai is a premium, lightning-fast desktop music player that combines official SoundCloud API streaming and iTunes search into a single glassmorphic experience. Powered by Tauri, Rust, and Supabase.
+        </p>
+        
+        <div class="hero-actions">
+          <a href="#download" class="btn btn-primary btn-lg">
+            <i data-lucide="download"></i> Download for Windows
+          </a>
+          <a href="https://github.com/soundcloud/api" target="_blank" class="btn btn-secondary btn-lg">
+            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg> Soundcloud API
+          </a>
+        </div>
+        
+        <div class="tech-stack">
+          <span class="tech-tag"><i data-lucide="zap"></i> Tauri v2</span>
+          <span class="tech-tag"><i data-lucide="shield"></i> Rust</span>
+          <span class="tech-tag"><i data-lucide="database"></i> Supabase</span>
+          <span class="tech-tag"><i data-lucide="layers"></i> SQLite</span>
+        </div>
+      </div>
+      
+      <div class="hero-mockup">
+        <div class="mockup-frame">
+          <img src="assets/screenshot1.png" alt="Snnai Music Player Interface" class="main-screenshot">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features Grid -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Built for Audiophiles who Code</h2>
+        <p>A native desktop experience built with cutting-edge web technologies and a Rust-based core engine.</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="card-icon"><i data-lucide="repeat"></i></div>
+          <h3>Smart Autoplay</h3>
+          <p>Never let the silence take over. Snnai automatically fetches related tracks from SoundCloud and iTunes when your queue runs dry.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="card-icon"><i data-lucide="search"></i></div>
+          <h3>Unified Dual Search</h3>
+          <p>Search across SoundCloud and iTunes concurrently. Stream the highest quality audio fallback via our integrated Rust engine.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="card-icon"><i data-lucide="database"></i></div>
+          <h3>SQLite Local Cache</h3>
+          <p>Built-in persistent settings database stores your credentials and audio streams locally for sub-millisecond startup times.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="card-icon"><i data-lucide="cloud"></i></div>
+          <h3>Supabase Cloud Sync</h3>
+          <p>Create playlists, sync your playback history, and share your favorite genres across devices with instant cloud sync.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase / Screenshots Carousel -->
+  <section id="screenshots" class="screenshots-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Visual Showcase</h2>
+        <p>Explore Snnai's clean interface, beautiful lyrics view, and responsive queues.</p>
+      </div>
+      
+      <div class="carousel-container">
+        <button class="carousel-btn prev-btn"><i data-lucide="chevron-left"></i></button>
+        
+        <div class="carousel-track-wrapper">
+          <div class="carousel-track">
+            <div class="carousel-slide active">
+              <img src="assets/screenshot1.png" alt="Search and Home View">
+              <div class="slide-caption">Unified Music Hub & Personalized Recommendations</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="assets/screenshot2.png" alt="Settings & SoundCloud Connection">
+              <div class="slide-caption">SQLite-backed Credentials & Connection Validation</div>
+            </div>
+            <div class="carousel-slide">
+              <img src="assets/screenshot3.png" alt="Infinite Autoplay Settings">
+              <div class="slide-caption">Smart Autoplay and Related Tracks Recommendation</div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="carousel-btn next-btn"><i data-lucide="chevron-right"></i></button>
+        
+        <div class="carousel-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation / Download -->
+  <section id="download" class="download-section">
+    <div class="download-glow"></div>
+    <div class="container">
+      <div class="download-box">
+        <div class="download-header">
+          <i data-lucide="cpu" class="box-icon"></i>
+          <h2>Get Snnai for Windows</h2>
+          <p>Experience zero-latency audio streaming directly on your Windows PC.</p>
+        </div>
+        
+        <div class="download-details">
+          <div class="download-requirements">
+            <h3>Release Info</h3>
+            <ul>
+              <li><strong>Version:</strong> v0.1.0-alpha</li>
+              <li><strong>OS Supported:</strong> Windows 10 / 11 (64-bit)</li>
+              <li><strong>Size:</strong> ~12.4 MB</li>
+              <li><strong>Package:</strong> Windows Installer (.exe)</li>
+            </ul>
+          </div>
+          
+          <div class="download-actions">
+            <!-- Simulated installer download link -->
+            <a href="downloads/snnai-music-player_0.1.0_x64-setup.exe" download class="btn btn-primary btn-lg btn-download">
+              <i data-lucide="download-cloud"></i> Download Installer (.exe)
+            </a>
+            <p class="download-note">
+              *If Windows SmartScreen warns about an unsigned application, click <strong>"More Info"</strong> and then <strong>"Run Anyway"</strong>. Snnai is 100% open-source and safe.
+            </p>
+          </div>
+        </div>
+        
+        <div class="install-steps">
+          <h3>Quick Setup</h3>
+          <div class="steps-grid">
+            <div class="step">
+              <span class="step-num">1</span>
+              <h4>Download EXE</h4>
+              <p>Download the installer to your PC.</p>
+            </div>
+            <div class="step">
+              <span class="step-num">2</span>
+              <h4>Install App</h4>
+              <p>Run the setup.exe and let it install in seconds.</p>
+            </div>
+            <div class="step">
+              <span class="step-num">3</span>
+              <h4>Add Credentials</h4>
+              <p>Sign in with Supabase or use your SoundCloud keys to stream!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <div class="logo">
+          <i data-lucide="music"></i>
+          <span>Snnai</span>
+        </div>
+        <p>Premium desktop music streaming player.</p>
+      </div>
+      <div class="footer-info">
+        <p>&copy; 2026 Snnai Music Player. All rights reserved.</p>
+        <p class="footer-credits">Made with <i data-lucide="heart" class="heart-icon"></i> using Tauri, Rust, and React.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="index.js"></script>
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

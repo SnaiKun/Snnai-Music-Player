@@ -1,0 +1,29 @@
+# Dependency directories
+node_modules/
+
+# Frontend builds
+dist/
+dist-ssr/
+
+# Tauri/Rust build artifacts
+src-tauri/target/
+src-tauri/gen/schemas/
+*.apk
+
+# Environment files
+.env
+.env*.local
+.env.production
+.env.development
+.env.staging
+
+# OS and Editor configs
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+thumbs.db
